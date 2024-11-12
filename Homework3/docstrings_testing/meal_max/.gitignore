@@ -1,3 +1,6 @@
 /tests/__pycache__
 /meal_max/__pycache__
 .pytest_cache
+./meal_max/utils/__pycache__
+./meal_max/models/__pycache__
+docstrings_testing/meal_max/meal_max/models/__pycache__
