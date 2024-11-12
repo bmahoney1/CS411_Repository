@@ -34,6 +34,7 @@ def healthcheck() -> Response:
     Returns:
         JSON response indicating the health status of the service.
     """
+    print("hello")
     app.logger.info('Health check')
     return make_response(jsonify({'status': 'healthy'}), 200)
 
@@ -326,4 +327,4 @@ def get_leaderboard() -> Response:
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True, host='0.0.0.0', port=5001)
