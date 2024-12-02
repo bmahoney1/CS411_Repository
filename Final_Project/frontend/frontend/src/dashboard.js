@@ -157,28 +157,54 @@ function Dashboard({ loggedInUsername }) {
     }
   };
 
-  // Update currency
+  const validCurrencies = new Set([
+    "AED", "AFN", "ALL", "AMD", "ANG", "AOA", "ARS", "AUD", "AWG", "AZN", "BAM", "BBD", "BDT", "BGN", "BHD", "BIF",
+    "BMD", "BND", "BOB", "BRL", "BSD", "BTN", "BWP", "BYN", "BZD", "CAD", "CDF", "CHF", "CLP", "CNY", "COP", "CRC",
+    "CUP", "CVE", "CZK", "DJF", "DKK", "DOP", "DZD", "EGP", "ERN", "ETB", "EUR", "FJD", "FKP", "FOK", "GBP", "GEL",
+    "GGP", "GHS", "GIP", "GMD", "GNF", "GTQ", "GYD", "HKD", "HNL", "HRK", "HTG", "HUF", "IDR", "ILS", "IMP", "INR",
+    "IQD", "IRR", "ISK", "JEP", "JMD", "JOD", "JPY", "KES", "KGS", "KHR", "KID", "KMF", "KRW", "KWD", "KYD", "KZT",
+    "LAK", "LBP", "LKR", "LRD", "LSL", "LYD", "MAD", "MDL", "MGA", "MKD", "MMK", "MNT", "MOP", "MRU", "MUR", "MVR",
+    "MWK", "MXN", "MYR", "MZN", "NAD", "NGN", "NIO", "NOK", "NPR", "NZD", "OMR", "PAB", "PEN", "PGK", "PHP", "PKR",
+    "PLN", "PYG", "QAR", "RON", "RSD", "RUB", "RWF", "SAR", "SBD", "SCR", "SDG", "SEK", "SGD", "SHP", "SLE", "SOS",
+    "SRD", "SSP", "STN", "SYP", "SZL", "THB", "TJS", "TMT", "TND", "TOP", "TRY", "TTD", "TVD", "TWD", "TZS", "UAH",
+    "UGX", "USD", "UYU", "UZS", "VES", "VND", "VUV", "WST", "XAF", "XCD", "XDR", "XOF", "XPF", "YER", "ZAR", "ZMW",
+    "ZWL"
+  ]);
+  
   const handleCurrencyChange = async (e) => {
     e.preventDefault();
+    if (!validCurrencies.has(newCurrency)) {
+      setMessage("Invalid currency code. Please use a valid 3-letter currency code.");
+      return;
+    }
+  
     try {
       const response = await fetch(`http://localhost:8080/user/${loggedInUsername}/update-currency`, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ currency: newCurrency }),
       });
+  
       const data = await response.json();
-      setMessage(data.message || 'Currency updated successfully');
-      setUserData({
-        ...userData,
-        amount: data.new_amount,
-        currency: newCurrency,
-      });
+  
+      if (response.ok) {
+        setMessage(data.message || "Currency updated successfully");
+        setUserData({
+          ...userData,
+          amount: data.new_amount,
+          currency: newCurrency,
+        });
+      } else {
+        setMessage(data.message || "Failed to update currency");
+      }
     } catch (err) {
       console.error(err.message);
+      setMessage("An error occurred while updating the currency.");
     }
   };
+  
 
   if (!userData) return <p>Loading...</p>;
 
@@ -216,7 +242,8 @@ function Dashboard({ loggedInUsername }) {
             id="newCurrency"
             className="form-input"
             value={newCurrency}
-            onChange={(e) => setNewCurrency(e.target.value)}
+            onChange={(e) => setNewCurrency(e.target.value.toUpperCase()
+            )}
             placeholder="e.g., USD, EUR"
             required
           />
