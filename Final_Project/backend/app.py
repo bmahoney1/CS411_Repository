@@ -28,17 +28,48 @@ class User(db.Model):
     currency = db.Column(db.String(10), default='USD')
 
 # Helper functions
-def hash_password(password):
+def hash_password(password: str) -> tuple:
+    """
+    Hashes the password and generates a salt.
+
+    Args:
+        password (str): The plain text password to hash.
+
+    Returns:
+        tuple: A tuple containing the salt and hashed password.
+    """
     salt = bcrypt.generate_password_hash(password).decode('utf-8')
     hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
     return salt, hashed_password
 
-def check_password(stored_hash, password):
+def check_password(stored_hash: str, password: str) -> bool:
+    """
+    Checks if the provided password matches the stored hash.
+
+    Args:
+        stored_hash (str): The hashed password stored in the database.
+        password (str): The plain text password to compare.
+
+    Returns:
+        bool: True if the password matches the stored hash, False otherwise.
+    """
     return bcrypt.check_password_hash(stored_hash, password)
 
 # Routes
 @app.route('/create-account', methods=['POST'])
-def create_account():
+def create_account() -> tuple:
+    """
+    Creates a new user account.
+
+    This endpoint accepts a POST request with JSON data containing a username and password.
+    It hashes the password and stores the user's details in the database.
+
+    Args:
+        None
+
+    Returns:
+        dict: A JSON response indicating the result of the account creation (success or error).
+    """
     data = request.json
     username = data['username']
     password = data['password']
@@ -53,7 +84,19 @@ def create_account():
     return jsonify({"message": "Account created successfully"}), 201
 
 @app.route('/login', methods=['POST'])
-def login():
+def login() -> tuple:
+    """
+    Authenticates a user.
+
+    This endpoint accepts a POST request with JSON data containing a username and password.
+    It checks if the provided credentials are correct and returns a login success or error message.
+
+    Args:
+        None
+
+    Returns:
+        dict: A JSON response indicating the login status (success or error).
+    """
     data = request.json
     username = data['username']
     password = data['password']
@@ -65,7 +108,18 @@ def login():
     return jsonify({"message": "Login successful"}), 200
 
 @app.route('/debug/users', methods=['GET'])
-def debug_users():
+def debug_users() -> tuple:
+    """
+    Retrieves all users for debugging purposes.
+
+    This endpoint returns a list of all users in the database, including their IDs, usernames, amount, and currency.
+
+    Args:
+        None
+
+    Returns:
+        list: A JSON list containing the details of all users.
+    """
     users = User.query.all()
     return jsonify([
         {"id": user.id, "username": user.username, "amount": user.amount, "currency": user.currency}
@@ -73,7 +127,19 @@ def debug_users():
     ])
 
 @app.route('/user/<username>', methods=['GET'])
-def get_user_data(username):
+def get_user_data(username: str) -> tuple:
+    """
+    Retrieves data for a specific user.
+
+    This endpoint accepts a GET request with a username as a parameter and returns the user's details.
+    If the user is not found, a 404 error response is returned.
+
+    Args:
+        username (str): The username of the user whose data is to be retrieved.
+
+    Returns:
+        dict: A JSON response with the user's data, or an error message if the user is not found.
+    """
     user = User.query.filter_by(username=username).first()
     if not user:
         return jsonify({"error": "User not found"}), 404
@@ -86,7 +152,19 @@ def get_user_data(username):
     }), 200
 
 @app.route('/user/<username>/update-amount', methods=['PUT'])
-def update_amount(username):
+def update_amount(username: str) -> tuple:
+    """
+    Updates the amount for a specific user.
+
+    This endpoint accepts a PUT request with a new amount in JSON data. It updates the user's amount in the database.
+
+    Args:
+        username (str): The username of the user whose amount is to be updated.
+        amount (float): The new amount to set for the user.
+
+    Returns:
+        dict: A JSON response indicating the result of the amount update (success or error).
+    """
     data = request.json
     new_amount = data.get("amount")
 
@@ -100,7 +178,20 @@ def update_amount(username):
     return jsonify({"message": "Amount updated successfully"}), 200
 
 @app.route('/user/<username>/update-currency', methods=['PUT'])
-def update_currency(username):
+def update_currency(username: str) -> tuple:
+    """
+    Updates the currency of a specific user.
+
+    This endpoint accepts a PUT request with a target currency in JSON data and converts the user's amount to the new currency.
+    It fetches the conversion rate from a third-party API and updates the user's data.
+
+    Args:
+        username (str): The username of the user whose currency is to be updated.
+        currency (str): The target currency to convert the user's amount to.
+
+    Returns:
+        dict: A JSON response indicating the result of the currency update, including the new amount and currency.
+    """
     data = request.json
     target_currency = data.get("currency")
 
@@ -139,7 +230,18 @@ def update_currency(username):
 
 
 @app.route('/health', methods=['GET'])
-def health_check():
+def health_check() -> tuple:
+    """
+    Health check endpoint.
+
+    This endpoint returns a JSON response with the application status, used to check if the app is running properly.
+
+    Args:
+        None
+
+    Returns:
+        dict: A JSON response indicating the app's health status.
+    """
     return jsonify({"status": "App is running"}), 200
 
 # Setup database
