@@ -1,3 +1,4 @@
+# I wrote the kitchen tests
 from contextlib import contextmanager
 import sqlite3
 import pytest
@@ -13,12 +14,7 @@ from meal_max.models.kitchen_model import (
 )
 from unittest.mock import Mock, patch
 
-
-######################################################
-#
 #    Fixtures
-#
-######################################################
 
 @pytest.fixture
 def mock_cursor(mocker):
@@ -40,11 +36,7 @@ def mock_cursor(mocker):
 
     return mock_cursor
 
-######################################################
-#
 #    Tests for Meal Creation
-#
-######################################################
 
 # def test_create_meal(mock_cursor):
 #     """Test creating a new meal."""
@@ -88,11 +80,8 @@ def test_create_meal_duplicate(mock_cursor):
     with pytest.raises(ValueError, match="Meal with name 'Pizza' already exists"):
         create_meal(meal="Pizza", cuisine="Italian", price=20, difficulty="LOW")
 
-######################################################
-#
+
 #    Tests for Clearing Meals
-#
-######################################################
 
 def test_clear_meals(mock_cursor, mocker):
     """Test clearing all meals from the catalog."""
@@ -104,11 +93,8 @@ def test_clear_meals(mock_cursor, mocker):
     mock_open.assert_called_once_with('/app/sql/create_meal_table.sql', 'r')
     mock_cursor.executescript.assert_called_once()
 
-######################################################
-#
+
 #    Tests for Deleting Meals
-#
-######################################################
 
 def test_delete_meal(mock_cursor):
     """Test deleting a meal by its ID."""
@@ -140,11 +126,8 @@ def test_delete_meal_already_deleted(mock_cursor):
     with pytest.raises(ValueError, match="Meal with ID 1 has been deleted"):
         delete_meal(1)
 
-######################################################
-#
+
 #    Tests for Retrieving Meals
-#
-######################################################
 
 def test_get_meal_by_id(mock_cursor):
     """Test retrieving a meal by its ID."""
@@ -178,11 +161,8 @@ def test_get_meal_by_name_not_found(mock_cursor):
     with pytest.raises(ValueError, match="Meal with name Sushi not found"):
         get_meal_by_name("Sushi")
 
-######################################################
-#
+
 #    Tests for Updating Meal Stats
-#
-######################################################
 
 def test_update_meal_stats_win(mock_cursor):
     """Test updating a meal's statistics with a 'win' result."""
@@ -231,11 +211,8 @@ def test_update_meal_stats_invalid_result(mock_get_db_connection):
     with pytest.raises(ValueError, match="Invalid result: draw. Expected 'win' or 'loss'."):
         update_meal_stats(1, 'draw')
 
-######################################################
-#
+
 #    Tests for Getting the Leaderboard
-#
-######################################################
 
 def test_get_leaderboard(mock_cursor):
     """Test retrieving the leaderboard sorted by wins."""

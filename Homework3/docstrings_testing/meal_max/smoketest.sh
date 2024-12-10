@@ -1,3 +1,4 @@
+# I wrote the smoketests
 #!/bin/bash
 
 # Define the base URL for the Flask API
@@ -16,11 +17,9 @@ while [ "$#" -gt 0 ]; do
 done
 
 
-###############################################
-#
+
 # Health checks
-#
-###############################################
+
 
 # Function to check the health of the service
 check_health() {
@@ -47,11 +46,9 @@ check_db() {
 }
 
 
-##########################################################
-#
+
 # Meals Management
-#
-##########################################################
+
 
 create_meal() {
   meal=$1
@@ -136,11 +133,7 @@ get_meal_by_name() {
 # }
 
 
-############################################################
-#
 # Battle
-#
-############################################################
 
 initiate_battle() {
   echo "Initiating battle between prepared meals..."
@@ -196,11 +189,7 @@ prep_combatant() {
 }
 
 
-############################################################
-#
 # Leaderboard
-#
-############################################################
 
 get_leaderboard() {
   echo "Getting leaderboard..."
