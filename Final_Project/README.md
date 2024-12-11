@@ -1,5 +1,3 @@
-Great! Here’s an updated `README.md` to include the Docker setup, so users can easily follow the steps to build and run the application using Docker.
-
 ```markdown
 # Flask User Management API with Docker
 
