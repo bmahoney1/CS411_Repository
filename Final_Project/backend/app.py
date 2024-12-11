@@ -1,7 +1,10 @@
+import requests
+import os
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS  # Import flask-cors
+from dotenv import load_dotenv
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -29,31 +32,16 @@ class User(db.Model):
 
 # Helper functions
 def hash_password(password: str) -> tuple:
-    """
-    Hashes the password and generates a salt.
-
-    Args:
-        password (str): The plain text password to hash.
-
-    Returns:
-        tuple: A tuple containing the salt and hashed password.
-    """
     salt = bcrypt.generate_password_hash(password).decode('utf-8')
     hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
     return salt, hashed_password
 
 def check_password(stored_hash: str, password: str) -> bool:
-    """
-    Checks if the provided password matches the stored hash.
-
-    Args:
-        stored_hash (str): The hashed password stored in the database.
-        password (str): The plain text password to compare.
-
-    Returns:
-        bool: True if the password matches the stored hash, False otherwise.
-    """
     return bcrypt.check_password_hash(stored_hash, password)
+
+# Load the API key from the environment variables
+load_dotenv()
+API_KEY = os.getenv('CURRENCY_API_KEY')
 
 # Routes
 @app.route('/create-account', methods=['POST'])
@@ -82,6 +70,68 @@ def create_account() -> tuple:
     db.session.add(user)
     db.session.commit()
     return jsonify({"message": "Account created successfully"}), 201
+
+@app.route('/user/<username>/delete', methods=['DELETE'])
+def delete_user(username: str) -> tuple:
+    """
+    Deletes a user from the database.
+
+    This endpoint accepts a DELETE request with a username parameter and removes the user from the database.
+
+    Args:
+        username (str): The username of the user to be deleted.
+
+    Returns:
+        dict: A JSON response indicating the result of the deletion (success or error).
+    """
+    user = User.query.filter_by(username=username).first()
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    # Delete the user
+    db.session.delete(user)
+    db.session.commit()
+
+    return jsonify({"message": f"User {username} deleted successfully"}), 200
+
+
+@app.route('/user/<username>/update-password', methods=['PUT'])
+def update_password(username: str) -> tuple:
+    """
+    Updates the password for a specific user.
+
+    This endpoint accepts a PUT request with JSON data containing the current password and new password.
+    It verifies the current password, hashes the new password, and updates the user's password in the database.
+
+    Args:
+        username (str): The username of the user whose password is to be updated.
+        current_password (str): The current password of the user.
+        new_password (str): The new password to set for the user.
+
+    Returns:
+        dict: A JSON response indicating the result of the password update (success or error).
+    """
+    data = request.json
+    current_password = data.get("current_password")
+    new_password = data.get("new_password")
+
+    # Find the user by username
+    user = User.query.filter_by(username=username).first()
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    # Verify the current password
+    if not check_password(user.hashed_password, current_password):
+        return jsonify({"error": "Current password is incorrect"}), 400
+
+    # Hash the new password and update the database
+    salt, hashed_password = hash_password(new_password)
+    user.salt = salt
+    user.hashed_password = hashed_password
+    db.session.commit()
+
+    return jsonify({"message": "Password updated successfully"}), 200
+
 
 @app.route('/login', methods=['POST'])
 def login() -> tuple:
@@ -199,14 +249,6 @@ def update_currency(username: str) -> tuple:
     if not user:
         return jsonify({"error": "User not found"}), 404
 
-    # Fetch conversion rate from third-party API
-    import requests
-    from dotenv import load_dotenv
-    import os
-
-    load_dotenv()
-    API_KEY = os.getenv('CURRENCY_API_KEY')
-
     response = requests.get(
         f'https://api.exchangerate-api.com/v4/latest/{user.currency}',
         params={'access_key': API_KEY}
@@ -216,8 +258,6 @@ def update_currency(username: str) -> tuple:
         return jsonify({"error": "Invalid currency"}), 400
 
     conversion_rate = rates[target_currency]
-
-    # Update user data
     user.amount *= conversion_rate
     user.currency = target_currency
     db.session.commit()
@@ -228,6 +268,48 @@ def update_currency(username: str) -> tuple:
         "currency": user.currency
     }), 200
 
+# New endpoints
+
+@app.route('/currencies', methods=['GET'])
+def get_supported_currencies():
+    """
+    Fetches all supported currencies from the Exchange Rate API.
+
+    This endpoint returns a list of supported currencies.
+    
+    Args:
+        None
+    
+    Returns:
+        dict: A JSON object containing the supported currency codes and names.
+    """
+    response = requests.get(f'https://v6.exchangerate-api.com/v6/{API_KEY}/codes')
+    data = response.json()
+
+    if data['result'] == 'success':
+        currencies = {code: name for code, name in data['supported_codes']}
+        return jsonify(currencies), 200
+    return jsonify({"error": "Failed to fetch supported currencies"}), 400
+
+@app.route('/quota', methods=['GET'])
+def get_quota():
+    """
+    Fetches the current API request quota.
+
+    This endpoint returns the current API request quota for the Exchange Rate API.
+
+    Args:
+        None
+
+    Returns:
+        dict: A JSON object with the current API request quota.
+    """
+    response = requests.get(f'https://v6.exchangerate-api.com/v6/{API_KEY}/quota')
+    data = response.json()
+
+    if data['result'] == 'success':
+        return jsonify(data), 200
+    return jsonify({"error": "Failed to fetch request quota"}), 400
 
 @app.route('/health', methods=['GET'])
 def health_check() -> tuple:

@@ -1,293 +1,259 @@
-### README: User Management System
+Great! Here’s an updated `README.md` to include the Docker setup, so users can easily follow the steps to build and run the application using Docker.
 
----
+```markdown
+# Flask User Management API with Docker
 
-## **Overview**
-The application is a user management system with a Flask backend and a React frontend. It provides features to create accounts, log in, manage user financial data, and perform currency conversions using a third-party API. The backend uses Flask with SQLAlchemy for database management, bcrypt for password hashing, and CORS to enable frontend communication. The application uses SQLite as the database and provides RESTful endpoints for user account management and data updates.
+This is a Flask-based API for user management and currency conversion, set up to run inside a Docker container. It allows users to create accounts, update their password and amount, delete their account, and view their data. Additionally, it provides endpoints for currency conversion, fetching supported currencies, and checking the API request quota.
 
----
+## Docker Setup
 
-## **Routes Documentation**
+### Prerequisites
 
-### **1. Create Account**
-- **Route Name and Path:** `/create-account`
-- **Request Type:** `POST`
-- **Purpose:** Creates a new user account with a unique username and hashed password.
-- **Request Format:**
-  - **Body (JSON):**
-    ```json
-    {
-        "username": "string",
-        "password": "string"
-    }
-    ```
-- **Response Format:**
-  - **Success Response (201):**
-    ```json
-    {
-        "message": "Account created successfully"
-    }
-    ```
-  - **Error Response (400):**
-    ```json
-    {
-        "error": "User already exists"
-    }
-    ```
-- **Example:**
-  - **Request:**
-    ```bash
-    curl -X POST http://localhost:5000/create-account -H "Content-Type: application/json" -d '{"username":"user1","password":"pass123"}'
-    ```
-  - **Response:**
-    ```json
-    {
-        "message": "Account created successfully"
-    }
-    ```
+- Docker installed on your system.
+- A working internet connection to pull images and dependencies.
 
----
+### Building the Docker Image
 
-### **2. Login**
-- **Route Name and Path:** `/login`
-- **Request Type:** `POST`
-- **Purpose:** Authenticates a user with their username and password.
-- **Request Format:**
-  - **Body (JSON):**
-    ```json
-    {
-        "username": "string",
-        "password": "string"
-    }
-    ```
-- **Response Format:**
-  - **Success Response (200):**
-    ```json
-    {
-        "message": "Login successful"
-    }
-    ```
-  - **Error Response (401):**
-    ```json
-    {
-        "error": "Invalid credentials"
-    }
-    ```
-- **Example:**
-  - **Request:**
-    ```bash
-    curl -X POST http://localhost:5000/login -H "Content-Type: application/json" -d '{"username":"user1","password":"pass123"}'
-    ```
-  - **Response:**
-    ```json
-    {
-        "message": "Login successful"
-    }
-    ```
+1. Clone this repository:
 
----
-
-### **3. Debug Users**
-- **Route Name and Path:** `/debug/users`
-- **Request Type:** `GET`
-- **Purpose:** Retrieves all users for debugging purposes.
-- **Request Format:**
-  - **No Parameters**
-- **Response Format:**
-  - **Success Response (200):**
-    ```json
-    [
-        {
-            "id": "int",
-            "username": "string",
-            "amount": "float",
-            "currency": "string"
-        }
-    ]
-    ```
-- **Example:**
-  - **Request:**
-    ```bash
-    curl -X GET http://localhost:5000/debug/users
-    ```
-  - **Response:**
-    ```json
-    [
-        {
-            "id": 1,
-            "username": "user1",
-            "amount": 0.0,
-            "currency": "USD"
-        }
-    ]
-    ```
-
----
-
-### **4. Get User Data**
-- **Route Name and Path:** `/user/<username>`
-- **Request Type:** `GET`
-- **Purpose:** Retrieves data for a specific user by username.
-- **Request Format:**
-  - **GET Parameter:**
-    - `<username>`: The username of the user.
-- **Response Format:**
-  - **Success Response (200):**
-    ```json
-    {
-        "id": "int",
-        "username": "string",
-        "amount": "float",
-        "currency": "string"
-    }
-    ```
-  - **Error Response (404):**
-    ```json
-    {
-        "error": "User not found"
-    }
-    ```
-- **Example:**
-  - **Request:**
-    ```bash
-    curl -X GET http://localhost:5000/user/user1
-    ```
-  - **Response:**
-    ```json
-    {
-        "id": 1,
-        "username": "user1",
-        "amount": 0.0,
-        "currency": "USD"
-    }
-    ```
-
----
-
-### **5. Update Amount**
-- **Route Name and Path:** `/user/<username>/update-amount`
-- **Request Type:** `PUT`
-- **Purpose:** Updates the amount for a specific user.
-- **Request Format:**
-  - **GET Parameter:**
-    - `<username>`: The username of the user.
-  - **Body (JSON):**
-    ```json
-    {
-        "amount": "float"
-    }
-    ```
-- **Response Format:**
-  - **Success Response (200):**
-    ```json
-    {
-        "message": "Amount updated successfully"
-    }
-    ```
-  - **Error Response (404):**
-    ```json
-    {
-        "error": "User not found"
-    }
-    ```
-- **Example:**
-  - **Request:**
-    ```bash
-    curl -X PUT http://localhost:5000/user/user1/update-amount -H "Content-Type: application/json" -d '{"amount": 100.0}'
-    ```
-  - **Response:**
-    ```json
-    {
-        "message": "Amount updated successfully"
-    }
-    ```
-
----
-
-### **6. Update Currency**
-- **Route Name and Path:** `/user/<username>/update-currency`
-- **Request Type:** `PUT`
-- **Purpose:** Converts the user's amount to a new currency and updates the currency field.
-- **Request Format:**
-  - **GET Parameter:**
-    - `<username>`: The username of the user.
-  - **Body (JSON):**
-    ```json
-    {
-        "currency": "string"
-    }
-    ```
-- **Response Format:**
-  - **Success Response (200):**
-    ```json
-    {
-        "message": "Currency updated successfully",
-        "new_amount": "float",
-        "currency": "string"
-    }
-    ```
-  - **Error Response (404):**
-    ```json
-    {
-        "error": "User not found"
-    }
-    ```
-  - **Error Response (400):**
-    ```json
-    {
-        "error": "Invalid currency"
-    }
-    ```
-- **Example:**
-  - **Request:**
-    ```bash
-    curl -X PUT http://localhost:5000/user/user1/update-currency -H "Content-Type: application/json" -d '{"currency": "EUR"}'
-    ```
-  - **Response:**
-    ```json
-    {
-        "message": "Currency updated successfully",
-        "new_amount": 85.0,
-        "currency": "EUR"
-    }
-    ```
-
----
-
-### **7. Health Check**
-- **Route Name and Path:** `/health`
-- **Request Type:** `GET`
-- **Purpose:** Checks if the application is running properly.
-- **Request Format:**
-  - **No Parameters**
-- **Response Format:**
-  - **Success Response (200):**
-    ```json
-    {
-        "status": "App is running"
-    }
-    ```
-- **Example:**
-  - **Request:**
-    ```bash
-    curl -X GET http://localhost:5000/health
-    ```
-  - **Response:**
-    ```json
-    {
-        "status": "App is running"
-    }
-    ```
-
----
-
-### **How to Run**
-1. Install dependencies:
    ```bash
-   pip install flask flask-sqlalchemy flask-bcrypt flask-cors python-dotenv requests
+   git clone https://github.com/yourusername/yourrepository.git
+   cd yourrepository
    ```
-2. Start the server:
+
+2. Build the Docker image:
+
    ```bash
-   python app.py
+   docker build -t flask-app .
    ```
-3. Access the application on [http://localhost:5000](http://localhost:5000).
+
+   This command will create the Docker image with the tag `flask-app`.
+
+### Running the Application
+
+1. Run the Docker container, mapping port 5000 inside the container to port 8080 on your host:
+
+   ```bash
+   docker run -p 8080:5000 flask-app
+   ```
+
+   This will start the Flask application inside the container and make it accessible on `http://localhost:8080`.
+
+### Stopping the Application
+
+To stop the running container, use the following command:
+
+```bash
+docker ps  # Get the container ID
+docker stop <container_id>  # Replace <container_id> with the actual container ID
+```
+
+### Verify the API is Running
+
+You can verify if the application is running correctly by opening a browser or making an HTTP request to:
+
+```
+http://localhost:8080/health
+```
+
+You should get a response:
+
+```json
+{
+  "status": "App is running"
+}
+```
+
+## Endpoints
+
+### 1. **Create Account**
+   - **Route:** `/create-account`
+   - **Method:** `POST`
+   - **Description:** Creates a new user account with a username and password.
+   - **Request Body (JSON):**
+     ```json
+     {
+       "username": "string",
+       "password": "string"
+     }
+     ```
+   - **Response:**
+     ```json
+     {
+       "message": "Account created successfully"
+     }
+     ```
+
+### 2. **Login**
+   - **Route:** `/login`
+   - **Method:** `POST`
+   - **Description:** Authenticates a user with a username and password.
+   - **Request Body (JSON):**
+     ```json
+     {
+       "username": "string",
+       "password": "string"
+     }
+     ```
+   - **Response:**
+     ```json
+     {
+       "message": "Login successful"
+     }
+     ```
+
+### 3. **Get User Data**
+   - **Route:** `/user/<username>`
+   - **Method:** `GET`
+   - **Description:** Retrieves the data of a specific user by username.
+   - **URL Parameters:**
+     - `username`: The username of the user to retrieve data for.
+   - **Response:**
+     ```json
+     {
+       "id": "int",
+       "username": "string",
+       "amount": "float",
+       "currency": "string"
+     }
+     ```
+
+### 4. **Update User Amount**
+   - **Route:** `/user/<username>/update-amount`
+   - **Method:** `PUT`
+   - **Description:** Updates the amount for a specific user.
+   - **URL Parameters:**
+     - `username`: The username of the user to update.
+   - **Request Body (JSON):**
+     ```json
+     {
+       "amount": "float"
+     }
+     ```
+   - **Response:**
+     ```json
+     {
+       "message": "Amount updated successfully"
+     }
+     ```
+
+### 5. **Update User Currency**
+   - **Route:** `/user/<username>/update-currency`
+   - **Method:** `PUT`
+   - **Description:** Updates the currency of a specific user by converting the user's amount to the target currency.
+   - **URL Parameters:**
+     - `username`: The username of the user to update.
+   - **Request Body (JSON):**
+     ```json
+     {
+       "currency": "string"
+     }
+     ```
+   - **Response:**
+     ```json
+     {
+       "message": "Currency updated successfully",
+       "new_amount": "float",
+       "currency": "string"
+     }
+     ```
+
+### 6. **Update Password**
+   - **Route:** `/user/<username>/update-password`
+   - **Method:** `PUT`
+   - **Description:** Updates the password for a specific user.
+   - **URL Parameters:**
+     - `username`: The username of the user to update.
+   - **Request Body (JSON):**
+     ```json
+     {
+       "current_password": "string",
+       "new_password": "string"
+     }
+     ```
+   - **Response:**
+     ```json
+     {
+       "message": "Password updated successfully"
+     }
+     ```
+
+### 7. **Delete User**
+   - **Route:** `/user/<username>/delete`
+   - **Method:** `DELETE`
+   - **Description:** Deletes a user from the database.
+   - **URL Parameters:**
+     - `username`: The username of the user to be deleted.
+   - **Response:**
+     ```json
+     {
+       "message": "User deleted successfully"
+     }
+     ```
+
+### 8. **Debug Users**
+   - **Route:** `/debug/users`
+   - **Method:** `GET`
+   - **Description:** Retrieves all users for debugging purposes.
+   - **Response:**
+     ```json
+     [
+       {
+         "id": "int",
+         "username": "string",
+         "amount": "float",
+         "currency": "string"
+       }
+     ]
+     ```
+
+### 9. **Health Check**
+   - **Route:** `/health`
+   - **Method:** `GET`
+   - **Description:** A health check endpoint to verify if the API is running properly.
+   - **Response:**
+     ```json
+     {
+       "status": "App is running"
+     }
+     ```
+
+### 10. **Get Supported Currencies**
+   - **Route:** `/currencies`
+   - **Method:** `GET`
+   - **Description:** Fetches all supported currencies from the Exchange Rate API.
+   - **Response:**
+     ```json
+     {
+       "USD": "United States Dollar",
+       "EUR": "Euro",
+       "GBP": "British Pound"
+     }
+     ```
+
+### 11. **Get API Request Quota**
+   - **Route:** `/quota`
+   - **Method:** `GET`
+   - **Description:** Fetches the current API request quota.
+   - **Response:**
+     ```json
+     {
+       "result": "success",
+       "data": {
+         "requests_left": "int",
+         "requests_total": "int"
+       }
+     }
+     ```
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+```
+
+### Key Changes for Docker:
+
+1. **Docker Commands:** Instructions for building the Docker image and running the container.
+2. **Verify API Running:** A health check endpoint (`/health`) to verify that the API is up and running inside the Docker container.
+
+Make sure your Dockerfile is set up correctly to run the Flask app and the SQLite database (or any other database you're using). Let me know if you need assistance with the Dockerfile itself!
