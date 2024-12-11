@@ -1,3 +1,4 @@
+To get the backend running:
 ```markdown
 # Flask User Management API with Docker
 
@@ -61,6 +62,16 @@ You should get a response:
   "status": "App is running"
 }
 ```
+
+To get the frontend running, go into the frontend/frontend directory and run:
+
+### `npm start`
+
+Runs the app in the development mode.\
+Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+
+The page will reload when you make changes.
+
 
 ## Endpoints
 
@@ -243,15 +254,3 @@ You should get a response:
        }
      }
      ```
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-```
-
-### Key Changes for Docker:
-
-1. **Docker Commands:** Instructions for building the Docker image and running the container.
-2. **Verify API Running:** A health check endpoint (`/health`) to verify that the API is up and running inside the Docker container.
-
-Make sure your Dockerfile is set up correctly to run the Flask app and the SQLite database (or any other database you're using). Let me know if you need assistance with the Dockerfile itself!
