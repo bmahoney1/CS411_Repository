@@ -1,27 +1,3 @@
-// import React from 'react';
-// import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-// import Login from './login';
-// import Signup from './signup';
-// import Dashboard from './dashboard';
-
-
-// function App() {
-//   return (
-//     <Router>
-//       <div className="App">
-//         <Routes>
-//           <Route path="/Login" element={<Login />} />
-//           <Route path="/Signup" element={<Signup />} />
-//           <Route path="/Dashboard" element={<Dashboard />} />
-//           <Route path="/" element={<Login />} /> {/* Default route */}
-//         </Routes>
-//       </div>
-//     </Router>
-//   );
-// }
-
-// export default App;
-
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './login';
