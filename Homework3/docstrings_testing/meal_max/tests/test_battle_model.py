@@ -1,3 +1,4 @@
+# I wrote the battle tests
 import pytest
 from meal_max.models.kitchen_model import Meal
 from meal_max.models.battle_model import BattleModel
@@ -20,9 +21,7 @@ def sample_combatant2():
     return Meal(id=2, meal="Sushi", cuisine="Japanese", price=20.0, difficulty="HIGH")
 
 
-##################################################
 # Prep and Clear Combatants Test Cases
-##################################################
 
 def test_prep_combatant(battle_model, sample_combatant1):
     """Test preparing a combatant."""
@@ -44,9 +43,7 @@ def test_clear_combatants(battle_model, sample_combatant1):
     battle_model.clear_combatants()
     assert len(battle_model.combatants) == 0, "Expected combatants list to be empty after clearing"
 
-##################################################
 # Battle Test Cases
-##################################################
 
 # @patch("meal_max.models.battle_model.get_random", return_value=0.05)
 # @patch("meal_max.models.battle_model.update_meal_stats")
@@ -90,9 +87,7 @@ def test_battle_not_enough_combatants(battle_model, sample_combatant1):
     with pytest.raises(ValueError, match="Two combatants must be prepped for a battle."):
         battle_model.battle()
 
-##################################################
 # Get Combatants and Scores Test Cases
-##################################################
 
 def test_get_combatants(battle_model, sample_combatant1, sample_combatant2):
     """Test retrieving combatants."""
